@@ -1,10 +1,14 @@
 package com.alexxwhite.jdscoring;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.exceptions.CsvValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class MainComponent {
@@ -18,14 +22,30 @@ public class MainComponent {
     public void run() throws CsvValidationException {
 
         List<EmailDTO> emailDTOS = jdReader.readCSV();
+        List<JoblVO> joblVOS = new ArrayList<>();
 
-        int maxSc = 0;
         for (EmailDTO emailDTO : emailDTOS) {
-            Integer res = scoreCalculation.doCalculation(emailDTO.getWholeBody(), null);
-            maxSc = Math.max(res, maxSc);
-            System.out.println(emailDTO.getSubject() + "  " + res);
+            JoblVO joblVO = handlerDto(emailDTO);
+            joblVOS.add(joblVO);
         }
-        System.out.println("maxSc  " + maxSc);
+        joblVOS = joblVOS.stream()
+                .sorted(Comparator.comparing(JoblVO::getScore))
+                .collect(Collectors.toList());
+
+        joblVOS.stream()
+                .map(jd -> jd.getSubject()
+                        + " (score " + jd.getScore()
+                        + " date " + jd.getDate() + ")")
+                .forEach(System.out::println);
 
     }
+
+    public JoblVO handlerDto(final EmailDTO emailDTO) {
+        Integer res = scoreCalculation.doCalculation(emailDTO.getWholeBody(), null);
+        ObjectMapper om = new ObjectMapper();
+        JoblVO joblVO = om.convertValue(emailDTO, JoblVO.class);
+        joblVO.setScore(res);
+        return joblVO;
+    }
+
 }

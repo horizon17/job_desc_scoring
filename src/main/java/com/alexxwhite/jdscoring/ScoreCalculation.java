@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * steps:
@@ -40,7 +41,7 @@ public class ScoreCalculation {
     public Integer doCalculation(final String jobDesc,
                               final String parResume) {
 
-        List<String> jobDescList = splitText(jobDesc);
+        List<String> jobDescList = prepareJD(splitText(jobDesc));
 
         HashMap<String, Integer> scoreMap = new HashMap<>();
 
@@ -109,6 +110,18 @@ public class ScoreCalculation {
             }
         }
         return false;
+    }
+
+    private List<String> prepareJD(List<String> jdSource) {
+
+        jdSource = jdSource.stream()
+                .map(r->r.replace("(", ""))
+                .map(r->r.replace(")", ""))
+                .collect(Collectors.toList());
+
+        jdSource.removeIf(e->e.isEmpty() || e == null || e.length() == 1);
+
+        return jdSource;
     }
 
 

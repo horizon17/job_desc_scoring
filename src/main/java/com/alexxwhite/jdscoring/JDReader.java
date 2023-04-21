@@ -16,7 +16,7 @@ public class JDReader {
     public List<EmailDTO> readCSV() throws CsvValidationException {
         List<EmailDTO> dtos = new ArrayList<>();
         try {
-            CSVReader reader = new CSVReader(new FileReader("c:\\temp\\messages-3.csv"));
+            CSVReader reader = new CSVReader(new FileReader("c:\\temp\\messages-4.csv"));
             String[] line;
             while ((line = reader.readNext()) != null) {
                 EmailDTO emailDTO = new EmailDTO();
