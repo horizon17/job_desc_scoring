@@ -1,9 +1,6 @@
 package com.alexxwhite.jdscoring;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
-
-import java.util.Date;
 
 @Data
 public class JoblVO {
@@ -22,5 +19,7 @@ public class JoblVO {
     private Integer score;
 
     private String location;
+
+    private Integer salary;
 
 }

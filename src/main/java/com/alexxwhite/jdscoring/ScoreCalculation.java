@@ -18,38 +18,16 @@ import java.util.stream.Collectors;
 @Component
 public class ScoreCalculation {
 
-    final static String jobDesc = "";
-
-    final static String resume = " Platforms/Frameworks: Java, JEE/J2EE, Spring/Boot Framework, Quarkus\n" +
-            "        Security: Spring Security, OAuth, OpenID, Keycloak\n" +
-            "        DB: Hibernate, JPA, JDBC for Oracle, MS SQL, MySQL, PostgreSQL, MongoDB\n" +
-            "        API: REST, SOAP\n" +
-            "        CI/CD: Docker, OpenShift, Kubernetes\n" +
-            "        Cloud: AWS, Google Cloud (including Cloud API, Cloud PubSub, GKE, Cloud Storage BigQuery, Cloud Spanner, BigTable, Cloud Logging, Stackdriver, App Engine)\n" +
-            "        Git, Gradle, Maven (including plugin development)\n" +
-            "        Kafka, Apache Ignite, React, Node JS\n" +
-            "        Deep understanding and use of Object-Oriented, Functional and Aspect-Oriented programming paradigms\n" +
-            "        JUnit, Mockito, TDD\n" +
-            "        Linux/Unix";
-
     final static String irrelevantResumeKeys = "Python Azure C# C++ ";
 
     final static int defaultPositiveScore = 10;
     final static int defaultNegativeScore = 10;
 
 
-    public Integer doCalculation(final String jobDesc,
-                              final String parResume) {
-
-        List<String> jobDescList = prepareJD(splitText(jobDesc));
+    public Integer doCalculation(final List<String> jobDescList,
+                              final List<String> relevantList) {
 
         HashMap<String, Integer> scoreMap = new HashMap<>();
-
-        // positive
-        List<String> relevantList = splitText(resume);
-        if (parResume != null) {
-            relevantList = splitText(parResume);
-        }
 
         // special ++ scores
         scoreMap.put("Java", 25);
@@ -73,10 +51,6 @@ public class ScoreCalculation {
 
         return getScore(jobDescList, scoreMap);
 
-    }
-
-    private List<String> splitText(final String bitText) {
-        return Arrays.asList(bitText.split("\\s*[/,;:.\n]\\s*"));
     }
 
     private HashMap<String, Integer> fillScoreMap(HashMap<String, Integer> scoreMap,
@@ -112,17 +86,6 @@ public class ScoreCalculation {
         return false;
     }
 
-    private List<String> prepareJD(List<String> jdSource) {
-
-        jdSource = jdSource.stream()
-                .map(r->r.replace("(", ""))
-                .map(r->r.replace(")", ""))
-                .collect(Collectors.toList());
-
-        jdSource.removeIf(e->e.isEmpty() || e == null || e.length() == 1);
-
-        return jdSource;
-    }
 
 
 }

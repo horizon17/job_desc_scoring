@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.Assert;
 
+import java.util.List;
+
 @SpringBootTest
 @ActiveProfiles("test")
 class ScoreCalculationTests {
@@ -13,7 +15,10 @@ class ScoreCalculationTests {
 	@Autowired
 	ScoreCalculation scoreCalculation;
 
-	String wholeBody = "Subject:\n" +
+	@Autowired
+	private TextProcessor textProcessor;
+
+	String jd = "Subject:\n" +
 			"IntelliSearch™ Alert found 26 new jobs, based on your profile\n" +
 			"" +
 			"C\n" +
@@ -21,12 +26,15 @@ class ScoreCalculationTests {
 			"Kafka:\n" +
 			"Spring Boot (framework)\n";
 
-	String myKeys = "Java, kafka, Spring boot";
+	String resume = "Java, kafka, Spring boot";
 
 	@Test
 	void prepareJDTest() {
 
-		Integer score = scoreCalculation.doCalculation(wholeBody, myKeys);
+		List<String> jobDescList = textProcessor.prepareJD(textProcessor.splitText(jd));
+		List<String> relevantList = textProcessor.splitText(resume);
+
+		Integer score = scoreCalculation.doCalculation(jobDescList, relevantList);
 		System.out.println(score);
 
 	}
