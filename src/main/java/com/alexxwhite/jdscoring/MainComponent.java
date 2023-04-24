@@ -45,7 +45,7 @@ public class MainComponent {
     @Autowired
     LocationAnalyzer locationAnalyzer;
 
-    final static String resume = " Platforms/Frameworks: Java, JEE/J2EE, Spring/Boot Framework, Quarkus\n" +
+    final static String resume = " Platforms/Frameworks: Java, JEE, J2EE, Spring/Boot Framework, Quarkus\n" +
             "        Security: Spring Security, OAuth, OpenID, Keycloak\n" +
             "        DB: Hibernate, JPA, JDBC for Oracle, MS SQL, MySQL, PostgreSQL, MongoDB\n" +
             "        API: REST, SOAP\n" +
@@ -55,11 +55,12 @@ public class MainComponent {
             "        Kafka, Apache Ignite, React, Node JS\n" +
             "        Deep understanding and use of Object-Oriented, Functional and Aspect-Oriented programming paradigms\n" +
             "        JUnit, Mockito, TDD\n" +
+            " Micro services, Containers, K8, Streaming, " +
             "        Linux/Unix";
 
     public void run() throws CsvValidationException, IOException, URISyntaxException {
 
-        String fileName = "c:\\temp\\messages-5.csv";
+        String fileName = "c:\\temp\\messages-6.csv";
         List<EmailDTO> emailDTOS = jdReader.readCSV(fileName);
         List<JoblVO> joblVOS = new ArrayList<>();
 
@@ -77,6 +78,9 @@ public class MainComponent {
         StringBuilder subjectGuid = new StringBuilder();
         StringBuilder sb = new StringBuilder();
         for (JoblVO joblVO : joblVOS) {
+            if (joblVO.getScore() < 1) {
+                continue;
+            }
             sb.append("{ x: " + joblVO.getScore() + ", "
                     + "y: " + joblVO.getSalary() + ", "
                     + "z: 30" + ", "

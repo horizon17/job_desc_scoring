@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Description comparation</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+    <p class="highcharts-description">
+        some desc what going on here
+    </p>
+</figure>
+
+<script type="text/javascript">
+
+Highcharts.chart('container', {
+
+    chart: {
+        type: 'bubble',
+        plotBorderWidth: 1,
+        zoomType: 'xy'
+    },
+
+    legend: {
+        enabled: false
+    },
+
+    title: {
+        text: 'JD matching on my resume'
+    },
+
+    // subtitle: {
+    //     text: 'Source: <a href="http://www.euromonitor.com/">Euromonitor</a> and <a href="https://data.oecd.org/">OECD</a>'
+    // },
+
+
+    accessibility: {
+        point: {
+            valueDescriptionFormat: '{index}. {point.name}, score: {point.x}g, salary: {point.y}g, location: {point.z}%.'
+        }
+    },
+
+    xAxis: {
+        gridLineWidth: 1,
+        title: {
+            text: 'job score'
+        },
+        labels: {
+            format: '{value} point'
+        },
+        accessibility: {
+            rangeDescription: 'Range: 0 to 400 point'
+        }
+    },
+
+    yAxis: {
+        startOnTick: false,
+        endOnTick: false,
+        title: {
+            text: 'Salary'
+        },
+        labels: {
+            format: '{value} $'
+        },
+        maxPadding: 0.2,
+        accessibility: {
+            rangeDescription: 'Range: 100000 to 200000 $'
+        }
+    },
+
+    tooltip: {
+        useHTML: true,
+        headerFormat: '<table>',
+        pointFormat: '<tr><th colspan="2"><h3>{point.location}</h3></th></tr>' +
+            '<tr><th>Score:</th><td>{point.x} point</td></tr>' +
+            '<tr><th>Salary:</th><td>{point.y} $</td></tr>' +
+            '<tr><th>Location:</th><td>{point.z} </td></tr>',
+        footerFormat: '</table>',
+        followPointer: false
+    },
+
+    plotOptions: {
+        series: {
+            dataLabels: {
+                enabled: true,
+                format: '{point.name}'
+            }
+        }
+    },
+
+    series: [{
+        data: [
+replace_me
+        ],
+        colorByPoint: true,
+        point: {
+            events: {
+                click: function() {
+                    // Create a hidden input field
+                    var input = document.createElement('input');
+                    input.style.opacity = 0;
+                    input.value = this.location;
+
+                    // Add the input field to the DOM
+                    document.body.appendChild(input);
+
+                    // Select the input field
+                    input.select();
+
+                    // Copy the text to the clipboard
+                    document.execCommand('copy');
+
+                    // Remove the input field from the DOM
+                    document.body.removeChild(input);
+
+                    // Show a notification
+                    //alert('Copied to clipboard:\n\n' + input.value);
+                }
+            }
+        }
+    }]
+
+});
+</script>
+
+    </body>
+</html>

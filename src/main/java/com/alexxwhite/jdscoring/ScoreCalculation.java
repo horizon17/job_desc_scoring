@@ -40,14 +40,17 @@ public class ScoreCalculation {
         List<String> irrelevantList = Arrays.asList(irrelevantResumeKeys.split(" "));
 
         // special -- scores
-        scoreMap.put("Angular", -20);
-        scoreMap.put("aws certification", -20);
-        scoreMap.put("aws certificate", -20);
+        scoreMap.put("Angular", -50);
+        scoreMap.put("Nodejs", -50);
+        scoreMap.put("Node.js", -50);
+        scoreMap.put("React", -50);
+        scoreMap.put("aws certification", -50);
+        scoreMap.put("aws certificate", -50);
         scoreMap.put("AWS Developer Certification", -20);
+        scoreMap.put("Lead", -20);
+        scoreMap.put("Azure", -50);
         scoreMap = fillScoreMap(scoreMap, irrelevantList, defaultNegativeScore);
 
-        // locations:
-        //scoreMap.put("Java", 25);
 
         return getScore(jobDescList, scoreMap);
 
