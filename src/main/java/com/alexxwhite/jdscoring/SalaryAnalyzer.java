@@ -22,10 +22,10 @@ public class SalaryAnalyzer {
         if (filtered.size() != 0) {
             String salary = filtered.get(0).replaceAll("401k|401K","");
             salary = salary.replaceAll("[^\\d$-]","");
-            if (salary.split("-").length-1 != 0) {
+            if (salary.split("-").length != 0) {
                 String[] salaryRange = salary.split("-");
                 salary = salaryRange[salaryRange.length - 1];
-            } else if (salary.split("$").length-1 > 1) {
+            } else if (salary.split("$").length > 2) {
                 String[] salaryRange = salary.split("$");
                 salary = salaryRange[salaryRange.length - 1];
             }

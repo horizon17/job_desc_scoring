@@ -20,6 +20,12 @@ public class JoblVO {
 
     private String location;
 
+    private String loc;
+
     private Integer salary;
+
+    private String type; // remote, onsite, hybrid
+
+    private String guid;
 
 }

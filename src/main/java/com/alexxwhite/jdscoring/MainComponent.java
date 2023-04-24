@@ -2,6 +2,7 @@ package com.alexxwhite.jdscoring;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.exceptions.CsvValidationException;
+import org.hibernate.id.GUIDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -13,10 +14,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +42,9 @@ public class MainComponent {
     @Autowired
     ResourceLoader resourceLoader;
 
+    @Autowired
+    LocationAnalyzer locationAnalyzer;
+
     final static String resume = " Platforms/Frameworks: Java, JEE/J2EE, Spring/Boot Framework, Quarkus\n" +
             "        Security: Spring Security, OAuth, OpenID, Keycloak\n" +
             "        DB: Hibernate, JPA, JDBC for Oracle, MS SQL, MySQL, PostgreSQL, MongoDB\n" +
@@ -58,7 +59,8 @@ public class MainComponent {
 
     public void run() throws CsvValidationException, IOException, URISyntaxException {
 
-        List<EmailDTO> emailDTOS = jdReader.readCSV();
+        String fileName = "c:\\temp\\messages-5.csv";
+        List<EmailDTO> emailDTOS = jdReader.readCSV(fileName);
         List<JoblVO> joblVOS = new ArrayList<>();
 
         for (EmailDTO emailDTO : emailDTOS) {
@@ -72,18 +74,25 @@ public class MainComponent {
         //  { x: 63.4, y: 51.8, z: 15.4, name: 'PT', country: 'Portugal' },
         //  { x: 64, y: 82.9, z: 31.3, name: 'NZ', country: 'New Zealand' }
         int i = 0;
+        StringBuilder subjectGuid = new StringBuilder();
         StringBuilder sb = new StringBuilder();
         for (JoblVO joblVO : joblVOS) {
             sb.append("{ x: " + joblVO.getScore() + ", "
                     + "y: " + joblVO.getSalary() + ", "
                     + "z: 30" + ", "
-                    + " name: " + "'JD' " + ", "  // joblVO.getSubject()
-                    + " country: " + " 'location CA'" + "}" + "\n");
+                    + " name: '" + joblVO.getLoc() + "', "  // joblVO.getSubject()
+                    + " location: '" + joblVO.getGuid() + "'}" + "\n");
             if (i != joblVOS.size() - 1) {
                 sb.append(",");
             }
+
+            subjectGuid.append(joblVO.getSubject());
+            subjectGuid.append(" ");
+            subjectGuid.append(joblVO.getGuid());
+            subjectGuid.append(" \n\n<br>");
         }
 
+        //
         Resource resource = resourceLoader.getResource("classpath:static/index.html");
         if (resource.exists()) {
             URL url = resource.getURL();
@@ -94,16 +103,17 @@ public class MainComponent {
 //                    .collect(Collectors.toList());
 
 
-            String fileName = "c:\\temp\\index.html";
+            String chartFile= "c:\\temp\\index.html";
 
-            try (FileWriter writer = new FileWriter(fileName)) {
+            try (FileWriter writer = new FileWriter(chartFile)) {
                 for (String line : fileRowsList) {
                     if (line.contains("replace_me")) {
-                        writer.write(sb.toString() + System.lineSeparator());
+                        writer.write(sb + System.lineSeparator());
                         continue;
                     }
                     writer.write(line + System.lineSeparator());
                 }
+                writer.write(subjectGuid.toString());
             } catch (IOException e) {
                 System.err.format("IOException: %s%n", e);
             }
@@ -112,8 +122,9 @@ public class MainComponent {
         joblVOS.stream()
                 .map(jd -> jd.getSubject()
                         + " (score " + jd.getScore()
-                        + " salary ================ " + jd.getSalary()
-                        + " date " + jd.getDate() + ")")
+                        + " salary ===> " + jd.getSalary()
+                        + " location: ---> " + jd.getLoc())
+                        //+ " date " + jd.getDate() + ")")
                 .forEach(System.out::println);
 
     }
@@ -128,12 +139,16 @@ public class MainComponent {
 
         ObjectMapper om = new ObjectMapper();
         JoblVO joblVO = om.convertValue(emailDTO, JoblVO.class);
+        joblVO.setGuid(UUID.randomUUID().toString());
 
         Integer score = scoreCalculation.doCalculation(jobDescList, relevantList);
         joblVO.setScore(score);
 
         Integer salary = salaryAnalyzer.searchSalary(emailDTO.getWholeBody());
         joblVO.setSalary(salary);
+
+        joblVO.setLocation(locationAnalyzer.searchLocation(emailDTO.getWholeBody()));
+        joblVO.setLoc(locationAnalyzer.shortLocation(joblVO.getLocation()));
         return joblVO;
     }
 

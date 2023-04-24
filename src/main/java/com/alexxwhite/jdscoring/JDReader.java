@@ -13,10 +13,10 @@ import java.util.List;
 @Component
 public class JDReader {
 
-    public List<EmailDTO> readCSV() throws CsvValidationException {
+    public List<EmailDTO> readCSV(String fileName) throws CsvValidationException {
         List<EmailDTO> dtos = new ArrayList<>();
         try {
-            CSVReader reader = new CSVReader(new FileReader("c:\\temp\\messages-4.csv"));
+            CSVReader reader = new CSVReader(new FileReader(fileName));
             String[] line;
             while ((line = reader.readNext()) != null) {
                 EmailDTO emailDTO = new EmailDTO();
@@ -30,7 +30,6 @@ public class JDReader {
                     emailDTO.setWholeBody(line[5]);
                 }
                 dtos.add(emailDTO);
-                //System.out.println(col1 + col2 + col3 + col5);
             }
             reader.close();
         } catch (IOException e) {
