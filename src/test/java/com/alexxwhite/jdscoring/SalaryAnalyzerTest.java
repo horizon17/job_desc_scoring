@@ -170,11 +170,70 @@ public class SalaryAnalyzerTest {
             "Privacy Policy | Terms | Help Center\n" +
             "Manage email settings | Unsubscribe from this email\"";
 
+    String jd1 = "I am  Deeksha, a recruiter with Pyramid Consulting, Inc. a leading staffing organization. I came across your profile in one of the job boards and feel that your skills and professional experience would be a good fit for a position with one of our premier clients. Please review the job description below. If you are interested in this position please forward your updated resume for immediate consideration and preferred time to discuss this opportunity further. \n" +
+            "  \n" +
+            "Title: Full Stack Java Developer  \n" +
+            "Location: Charlotte, NC / Jersey City, NJ / Plano, TX  [Hybrid from day1  and 3 Days onsite]\n" +
+            "Duration: +12 Months [Possible Extension]\n" +
+            "PR Range: $58 - $65/hr. Employee benefits include, but are not limited to, health insurance (medical, dental, vision), 401(k) plan, and paid sick leave (depending on work location).\n" +
+            "Note: H1B transfer will work here too.\n" +
+            "         \n" +
+            "Job Description:\n" +
+            "Bachelors or Master’s Degree in Computer Science or related field.\n" +
+            "7+ years of hands-on software development experience using Java / J2EE technologies.\n" +
+            "Database.\n" +
+            "UI (Angular/React JS)\n" +
+            "Good interpersonal communication skills for technical and business conversations.\n" +
+            "Good analytical skills to break down requirements and solve complex problems.\n" +
+            "Proven task management and leadership skills.\n" +
+            "Experience in server-side frameworks like Spring MVC.\n" +
+            "Experience building restful web services.\n" +
+            " \n" +
+            "Desired Skills:\n" +
+            "Experience in performance tuning with good understanding of JVM internals.\n" +
+            "Experience with NoSQL databases like Cassandra.\n" +
+            "Experience with open-source search engines like SOLR, elasticsearch.\n" +
+            "Experience working with NLP and Machine learning.\n" +
+            "Experience working in agile teams.\n" +
+            "\n" +
+            "Thanks and Regards,\n" +
+            "Deeksha Shah\n" +
+            "STEP - Recruiter\n" +
+            "Pyramid Consulting, Inc\n" +
+            "3060 Kimball Bridge Rd. Suite 200\n" +
+            "Alpharetta, GA\n" +
+            "Email: Deeksha.Shah@pyramidci.com; Desk: (415) 941-5840 Ext.5840\n" +
+            "Web: www.pyramidci.com\n" +
+            "USA | Canada | UK | India | Singapore";
+
+    String jd2 = "Hi Anatolii,\n" +
+            "\n" +
+            "As we discussed, I am sending you this RTR and Salary confirmation for the position of Java Developer for 100% remote with Wipro Technologies.\n" +
+            "\n" +
+            " I ------------------------------------------------- confirm my Salary of $125k  + Wipro Benefits for the position of Java Developer (JD mentioned Below) for Wipro Technologies for 100% remote\n" +
+            "\n" +
+            " I also confirm that my work authorization status is   ---------------------------------------. I have also submitted all below required documents.\n" +
+            "\n" +
+            "·       Are you currently employed with government or government agency in any capacity or were employed in the last 12 months ?\n" +
+            "\n" +
+            "(The definition of Government employment includes employees of government companies, public sector undertakings, departments, institutions or any arm of any government, and foreign officials including officials of public international organizations)\n" +
+            "\n" +
+            "·         Resume:\n" +
+            "\n" +
+            "·         Alternate Email ID:\n" +
+            "\n" +
+            "·         LinkedIn ID: \n" +
+            "\n" +
+            "·         Full  Educational details with highest Education  with Passing year Bachler’s degree:\n" +
+            "\n" +
+            " \n" +
+            "\n" +
+            "Please reply with these details along with an updated copy of your resume:";
 
     @Test
     void searchSalaryTest() {
 
-        Integer salary = salaryAnalyzer.searchSalary(jd);
+        Integer salary = salaryAnalyzer.searchSalary(jd2);
         System.out.println(salary);
 
     }
