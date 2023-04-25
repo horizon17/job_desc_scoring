@@ -84,10 +84,26 @@ public class LocationAnalyzerTest {
             "Experience with both external and embedded databases\n" +
             "Creating database schemas that represent and support business processes";
 
+    String jd2 = "Hi \n" +
+            "\n" +
+            "Hope you are doing good\n" +
+            "\n" +
+            "kindly go through the below job Description and let me know your interest and your salary expectation.\n" +
+            "\n" +
+            "I apologize if the job is not of your interest however I highly appreciate if you can refer somebody suitable for this position. \n" +
+            "\n" +
+            " \n" +
+            "\n" +
+            "Role –     Java Developer\n" +
+            "\n" +
+            "Location-  Jersey City, NJ/ New York City, NY/ Charlotte, NC/ Dallas, TX/ Chicago, IL\n" +
+            "\n" +
+            "Duration-  Permanent Full-time Position  ";
+
     @Test
     void searchSalaryTest() {
 
-        String location = locationAnalyzer.searchLocation(jd1);
+        String location = locationAnalyzer.searchLocation(jd2);
         System.out.println(location);
 
         String loc = locationAnalyzer.shortLocation(location);

@@ -60,7 +60,7 @@ public class MainComponent {
 
     public void run() throws CsvValidationException, IOException, URISyntaxException {
 
-        String fileName = "c:\\temp\\messages-6.csv";
+        String fileName = "c:\\temp\\messages-9.csv";
         List<EmailDTO> emailDTOS = jdReader.readCSV(fileName);
         List<JoblVO> joblVOS = new ArrayList<>();
 
