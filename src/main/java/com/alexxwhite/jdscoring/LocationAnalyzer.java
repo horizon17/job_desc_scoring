@@ -142,8 +142,11 @@ public class LocationAnalyzer {
         List<String> jobDescList = textProcessor.prepareJD(textProcessor.splitTextByLines(jobDesc));
 
         List<String> locKeyList = new ArrayList<>();
-        locKeyList.add("location");
+        locKeyList.add("LOCATION");
         locKeyList.add("Location");
+        locKeyList.add("location");
+        locKeyList.add("LOCATED");
+        locKeyList.add("Located");
         locKeyList.add("located");
         List<String> filtered = jobDescList.stream()
                 .filter(r -> locKeyList.stream().anyMatch(r::contains))
@@ -181,6 +184,6 @@ public class LocationAnalyzer {
                     .collect(Collectors.toList());
         }
         String shortLoc = filtered.stream().distinct().collect(Collectors.joining());
-        return shortLoc.replaceAll("REMOTE|HYBRID|COVID|Onsite|Current|", "");
+        return shortLoc.replaceAll("REMOTE|HYBRID|COVID|Onsite|ONSITE|CURRENT|Current|", "");
     }
 }

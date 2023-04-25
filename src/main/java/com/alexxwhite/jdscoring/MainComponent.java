@@ -45,12 +45,12 @@ public class MainComponent {
     @Autowired
     LocationAnalyzer locationAnalyzer;
 
-    final static String resume = " Platforms/Frameworks: Java, JEE, J2EE, Spring/Boot Framework, Quarkus\n" +
-            "        Security: Spring Security, OAuth, OpenID, Keycloak\n" +
-            "        DB: Hibernate, JPA, JDBC for Oracle, MS SQL, MySQL, PostgreSQL, MongoDB\n" +
-            "        API: REST, SOAP\n" +
+    final static String resume = " Platforms/Frameworks: Java, JEE, J2EE, Spring Boot, Spring Framework, Quarkus\n" +
+            "        Spring Security, OAuth, OpenID, Keycloak\n" +
+            "        Hibernate, JPA, JDBC for Oracle, MS SQL, MySQL, PostgreSQL, MongoDB\n" +
+            "        REST api, SOAP\n" +
             "        CI/CD: Docker, OpenShift, Kubernetes\n" +
-            "        Cloud: AWS, Google Cloud (including Cloud API, Cloud PubSub, GKE, Cloud Storage BigQuery, Cloud Spanner, BigTable, Cloud Logging, Stackdriver, App Engine)\n" +
+            "        Cloud: Google Cloud, Cloud API, Cloud PubSub, GKE, Cloud Storage BigQuery, Cloud Spanner, BigTable, Cloud Logging, Stackdriver, App Engine)\n" +
             "        Git, Gradle, Maven (including plugin development)\n" +
             "        Kafka, Apache Ignite, React, Node JS\n" +
             "        Deep understanding and use of Object-Oriented, Functional and Aspect-Oriented programming paradigms\n" +
@@ -60,12 +60,12 @@ public class MainComponent {
 
     public void run() throws CsvValidationException, IOException, URISyntaxException {
 
-        String fileName = "c:\\temp\\messages-9.csv";
+        String fileName = "c:\\temp\\messages-10.csv";
         List<EmailDTO> emailDTOS = jdReader.readCSV(fileName);
         List<JoblVO> joblVOS = new ArrayList<>();
 
         for (EmailDTO emailDTO : emailDTOS) {
-            JoblVO joblVO = handlerDto(emailDTO, resume);
+            JoblVO joblVO = handlerDto(emailDTO, resume.toLowerCase());
             joblVOS.add(joblVO);
         }
         joblVOS = joblVOS.stream()
@@ -78,22 +78,29 @@ public class MainComponent {
         StringBuilder subjectGuid = new StringBuilder();
         StringBuilder sb = new StringBuilder();
         for (JoblVO joblVO : joblVOS) {
-            if (joblVO.getScore() < 1) {
+            if (joblVO.getScore() < 1 || (joblVO.getScore() < 50 && joblVO.getLoc().isEmpty())) {
                 continue;
             }
             sb.append("{ x: " + joblVO.getScore() + ", "
                     + "y: " + joblVO.getSalary() + ", "
                     + "z: 30" + ", "
-                    + " name: '" + joblVO.getLoc() + "', "  // joblVO.getSubject()
-                    + " location: '" + joblVO.getGuid() + "'}" + "\n");
+                    + "color: "+ getColor(joblVO.getType()) +","
+                    + " loc: '" + joblVO.getLoc() + "', "
+                    + " uuid: '" + joblVO.getGuid() + "'}" + "\n");
             if (i != joblVOS.size() - 1) {
                 sb.append(",");
             }
 
-            subjectGuid.append(joblVO.getSubject());
-            subjectGuid.append(" ");
-            subjectGuid.append(joblVO.getGuid());
             subjectGuid.append(" \n\n<br>");
+            subjectGuid.append(joblVO.getGuid());
+            subjectGuid.append(": ");
+            subjectGuid.append(joblVO.getSubject());
+            subjectGuid.append(", from: ");
+            subjectGuid.append(joblVO.getFrom());
+            subjectGuid.append(", date: ");
+            subjectGuid.append(joblVO.getDate());
+            subjectGuid.append(" \n\n<br>");
+            subjectGuid.append("----------");
         }
 
         //
@@ -101,11 +108,6 @@ public class MainComponent {
         if (resource.exists()) {
             URL url = resource.getURL();
             List<String> fileRowsList = getFromFile(url);
-
-//            fileRowsList = fileRowsList.stream()
-//                    .peek(r->r.replace("replace_me", sb.toString()))
-//                    .collect(Collectors.toList());
-
 
             String chartFile= "c:\\temp\\index.html";
 
@@ -137,7 +139,7 @@ public class MainComponent {
     public JoblVO handlerDto(final EmailDTO emailDTO,
                              final String resume) {
 
-        List<String> jobDescList = textProcessor.prepareJD(textProcessor.splitText(emailDTO.getWholeBody()));
+        List<String> jobDescList = textProcessor.prepareJD(textProcessor.splitText(emailDTO.getWholeBody().toLowerCase()));
 
         List<String> relevantList = textProcessor.splitText(resume);
 
@@ -151,8 +153,15 @@ public class MainComponent {
         Integer salary = salaryAnalyzer.searchSalary(emailDTO.getWholeBody());
         joblVO.setSalary(salary);
 
+        joblVO.setType(workType(emailDTO.getWholeBody().toLowerCase()));
+
         joblVO.setLocation(locationAnalyzer.searchLocation(emailDTO.getWholeBody()));
         joblVO.setLoc(locationAnalyzer.shortLocation(joblVO.getLocation()));
+
+        if (joblVO.getType().contains("or")) {
+            joblVO.setLoc(joblVO.getLoc() + " " + joblVO.getType());
+        }
+
         return joblVO;
     }
 
@@ -162,6 +171,37 @@ public class MainComponent {
 
     }
 
+    private String workType(final String body) {
+        StringBuilder sb = new StringBuilder();
+        if (body.contains("remote")) {
+            sb.append("Remote");
+        }
+        if (body.contains("onsite")) {
+            if (sb.length() != 0) {
+                sb.append(" or ");
+            }
+            sb.append("OnSite");
+        }
+        if (body.contains("hybrid")) {
+            if (sb.length() != 0) {
+                sb.append(" or ");
+            }
+            sb.append("Hybrid");
+        }
+        return sb.toString();
+    }
 
+    private String getColor(final String type) {
+        if (type.equals("Remote")) {
+            return "'#00ff00'";
+        }
+        if (type.equals("OnSite")) {
+            return "'#0066ff'";
+        }
+        if (type.equals("Hybrid")) {
+            return "'#ff9933'";
+        }
+        return "'#990099'";
+    }
 
 }

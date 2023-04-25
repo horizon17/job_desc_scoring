@@ -44,7 +44,7 @@ public class SalaryAnalyzer {
                 System.out.println("cant convert " + salary + " to Integer");
             }
         }
-        return 99000;
+        return new Random().nextInt(20000) + 30000;
         //return new Random().nextInt(50000) + 100000;
     }
 
