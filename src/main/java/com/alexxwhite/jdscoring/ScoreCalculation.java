@@ -47,8 +47,11 @@ public class ScoreCalculation {
         scoreMap.put("aws certification", -50);
         scoreMap.put("aws certificate", -50);
         scoreMap.put("AWS Developer Certification", -20);
-        scoreMap.put("Lead", -20);
+        scoreMap.put("Lead developer", -20);
         scoreMap.put("Azure", -50);
+        scoreMap.put("Full stack", -50);
+        scoreMap.put("Full stack developer", -50);
+        scoreMap.put("Lead Full", -50);
         scoreMap = fillScoreMap(scoreMap, irrelevantList, defaultNegativeScore);
 
 
@@ -74,6 +77,7 @@ public class ScoreCalculation {
         int sum = positiveScore.entrySet().stream()
                 .filter(entry -> ifContainAny(jDkeyWords, entry.getKey()))
                 .mapToInt(Map.Entry::getValue)
+                //.peek(System.out::println)
                 .sum();
 
         return sum;

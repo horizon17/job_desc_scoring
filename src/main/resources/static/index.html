@@ -20,9 +20,7 @@
 <figure class="highcharts-figure">
     <div id="container"></div>
     <p class="highcharts-description">
-        <span style="color: #00ff00">Remote </span>
-        <span style="color:#0066ff">OnSite </span>
-        <span style="color: #ff9933">Hybrid</span>
+
     </p>
 </figure>
 
@@ -51,7 +49,7 @@ Highcharts.chart('container', {
 
     accessibility: {
         point: {
-            valueDescriptionFormat: '{index}. {point.uuid}, score: {point.x}g, salary: {point.y}g, location: {point.z}%.'
+            valueDescriptionFormat: '{index}. {point.uuid}, score: {point.x}g, salary: {point.y}g, type: {point.z}%.'
         }
     },
 
@@ -77,6 +75,21 @@ Highcharts.chart('container', {
         labels: {
             format: '{value} $'
         },
+        plotLines: [{
+            color: 'black',
+            dashStyle: 'dot',
+            width: 2,
+            value: 95000,
+            label: {
+                align: 'right',
+                style: {
+                    fontStyle: 'italic'
+                },
+                text: 'salary unknown below this line (randomly sprayed to avoid overlap)',
+                x: -30
+            },
+            zIndex: 4
+        }],
         maxPadding: 0.2,
         accessibility: {
             rangeDescription: 'Range: 100000 to 400000 $'
@@ -86,10 +99,11 @@ Highcharts.chart('container', {
     tooltip: {
         useHTML: true,
         headerFormat: '<table>',
-        pointFormat: '<tr><th colspan="2"><h3>{point.location}</h3></th></tr>' +
+        pointFormat: '<tr><th colspan="2"><h3>{point.uuid}</h3></th></tr>' +
             '<tr><th>Score:</th><td>{point.x} point</td></tr>' +
             '<tr><th>Salary:</th><td>{point.y} $</td></tr>' +
-            '<tr><th>Location:</th><td>{point.z} </td></tr>',
+            '<tr><th>Location:</th><td>{point.loc} </td></tr>' +
+            '<tr><th>Type:</th><td>{point.type} </td></tr>',
         footerFormat: '</table>',
         followPointer: false
     },

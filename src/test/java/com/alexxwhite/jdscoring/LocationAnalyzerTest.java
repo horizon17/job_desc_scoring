@@ -111,5 +111,19 @@ public class LocationAnalyzerTest {
 
     }
 
+    @Test
+    void stringTest() {
+
+        String name = "name1";
+        System.out.println(name);
+
+        name = "name2";
+        System.out.println(name);
+
+        name = name.replace("n", "m");
+        System.out.println(name);
+
+    }
+
 
 }

@@ -60,11 +60,21 @@ public class MainComponent {
 
     public void run() throws CsvValidationException, IOException, URISyntaxException {
 
-        String fileName = "c:\\temp\\messages-10.csv";
+        // todo - to start param
+        boolean coolPrint = true;
+
+        String fileName = "c:\\temp\\messages-2.csv";
         List<EmailDTO> emailDTOS = jdReader.readCSV(fileName);
         List<JoblVO> joblVOS = new ArrayList<>();
 
         for (EmailDTO emailDTO : emailDTOS) {
+            String sbj = emailDTO.getSubject();
+            if (sbj.contains("Rate Confirmation")
+                    || sbj.contains("RTR")
+                    || (sbj.contains("RE:") && !sbj.contains("Hire"))) {
+                System.out.println("skipped with subject " + emailDTO.getSubject());
+                continue;
+            }
             JoblVO joblVO = handlerDto(emailDTO, resume.toLowerCase());
             joblVOS.add(joblVO);
         }
@@ -75,17 +85,53 @@ public class MainComponent {
         //  { x: 63.4, y: 51.8, z: 15.4, name: 'PT', country: 'Portugal' },
         //  { x: 64, y: 82.9, z: 31.3, name: 'NZ', country: 'New Zealand' }
         int i = 0;
+        int kRandInit = -500000;
+        int kMaxLevel = 60000;
+        int kStep = 40000;
+        int kShift = kRandInit;
+
         StringBuilder subjectGuid = new StringBuilder();
         StringBuilder sb = new StringBuilder();
+        sb.append("{ x: 0, y: 280000, z: 22, color: "
+                +  getColor("Remote") + ", loc: 'Remote', type: 'Remote', uuid: '1' },");
+        sb.append("{ x: 0, y: 250000, z: 22, color: "
+                +  getColor("OnSite") + ", loc: 'OnSite', type: 'OnSite', uuid: '2' },");
+        sb.append("{ x: 0, y: 220000, z: 22, color: "
+                +  getColor("Hybrid") + ", loc: 'Hybrid', type: 'Hybrid', uuid: '3' },");
+        if (coolPrint) {
+            sb.append("{ x: 275, y: 140000, z: 22, color: "
+                    + getColor("Hybrid") + ", loc: 'CA', type: 'Hybrid', uuid: 'f2dd1eb8-e979-4ec8-8be9-431ab6380bea' },");
+        }
+        sb.append("{ x: 0, y: 190000, z: 22, color: "
+                +  getColor("Mixed")
+                + ", loc: 'Remote or OnSite or Hybrid', type: 'Remote or OnSite or Hybrid', uuid: '4' },");
         for (JoblVO joblVO : joblVOS) {
-            if (joblVO.getScore() < 1 || (joblVO.getScore() < 50 && joblVO.getLoc().isEmpty())) {
+            if (joblVO.getScore() < 50 || (joblVO.getScore() < 90 && joblVO.getLoc().isEmpty())) {
                 continue;
             }
+            Integer salary = joblVO.getSalary();
+            if (salary == 0) {
+                salary =  kShift; // new Random().nextInt(20000) +
+
+                kShift = kShift + kStep;
+                if (kShift > kMaxLevel) {
+                    kShift = kRandInit;
+                }
+                joblVO.setSalary(salary);
+            }
+            if (coolPrint) {
+                if (joblVO.getLoc().isEmpty()) {
+                    String[] randomLoc = new String[] {"CA", "FL", "TX", "OH"};
+                    Integer rand = new Random().nextInt(randomLoc.length);
+                    joblVO.setLoc(randomLoc[rand]);
+                }
+            }
             sb.append("{ x: " + joblVO.getScore() + ", "
-                    + "y: " + joblVO.getSalary() + ", "
-                    + "z: 30" + ", "
+                    + "y: " + salary + ", "
+                    + "z: " + getSize(joblVO.getType()) + ", "
                     + "color: "+ getColor(joblVO.getType()) +","
                     + " loc: '" + joblVO.getLoc() + "', "
+                    + " type: '" + joblVO.getType() + "', "
                     + " uuid: '" + joblVO.getGuid() + "'}" + "\n");
             if (i != joblVOS.size() - 1) {
                 sb.append(",");
@@ -126,7 +172,7 @@ public class MainComponent {
         }
 
         joblVOS.stream()
-                .map(jd -> jd.getSubject()
+                .map(jd -> jd.getGuid() + " " + jd.getSubject()
                         + " (score " + jd.getScore()
                         + " salary ===> " + jd.getSalary()
                         + " location: ---> " + jd.getLoc())
@@ -193,7 +239,7 @@ public class MainComponent {
 
     private String getColor(final String type) {
         if (type.equals("Remote")) {
-            return "'#00ff00'";
+            return "'#00FFFF'";
         }
         if (type.equals("OnSite")) {
             return "'#0066ff'";
@@ -201,7 +247,20 @@ public class MainComponent {
         if (type.equals("Hybrid")) {
             return "'#ff9933'";
         }
-        return "'#990099'";
+        return "'#b3ffb3'";
+    }
+
+    private String getSize(final String type) {
+//        if (type.equals("Remote")) {
+//            return "17";
+//        }
+//        if (type.equals("OnSite")) {
+//            return "17";
+//        }
+//        if (type.equals("Hybrid")) {
+//            return "17";
+//        }
+        return "22";
     }
 
 }

@@ -44,8 +44,7 @@ public class SalaryAnalyzer {
                 System.out.println("cant convert " + salary + " to Integer");
             }
         }
-        return new Random().nextInt(20000) + 30000;
-        //return new Random().nextInt(50000) + 100000;
+        return 0;
     }
 
     private List<String> salaryRows(final List<String> jobDescList) {
