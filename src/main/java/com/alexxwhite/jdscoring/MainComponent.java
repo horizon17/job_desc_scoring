@@ -63,7 +63,7 @@ public class MainComponent {
         // todo - to start param
         boolean coolPrint = true;
 
-        String fileName = "c:\\temp\\messages-2.csv";
+        String fileName = "c:\\temp\\messages-7.csv";
         List<EmailDTO> emailDTOS = jdReader.readCSV(fileName);
         List<JoblVO> joblVOS = new ArrayList<>();
 
@@ -92,17 +92,17 @@ public class MainComponent {
 
         StringBuilder subjectGuid = new StringBuilder();
         StringBuilder sb = new StringBuilder();
-        sb.append("{ x: 0, y: 280000, z: 22, color: "
+        sb.append("{ x: 0, y: 300000, z: 22, color: "
                 +  getColor("Remote") + ", loc: 'Remote', type: 'Remote', uuid: '1' },");
-        sb.append("{ x: 0, y: 250000, z: 22, color: "
+        sb.append("{ x: 0, y: 100000, z: 22, color: "
                 +  getColor("OnSite") + ", loc: 'OnSite', type: 'OnSite', uuid: '2' },");
-        sb.append("{ x: 0, y: 220000, z: 22, color: "
+        sb.append("{ x: 0, y: -100000, z: 22, color: "
                 +  getColor("Hybrid") + ", loc: 'Hybrid', type: 'Hybrid', uuid: '3' },");
         if (coolPrint) {
-            sb.append("{ x: 275, y: 140000, z: 22, color: "
+            sb.append("{ x: 275, y: 145000, z: 22, color: "
                     + getColor("Hybrid") + ", loc: 'CA', type: 'Hybrid', uuid: 'f2dd1eb8-e979-4ec8-8be9-431ab6380bea' },");
         }
-        sb.append("{ x: 0, y: 190000, z: 22, color: "
+        sb.append("{ x: 0, y: -300000, z: 22, color: "
                 +  getColor("Mixed")
                 + ", loc: 'Remote or OnSite or Hybrid', type: 'Remote or OnSite or Hybrid', uuid: '4' },");
         for (JoblVO joblVO : joblVOS) {
