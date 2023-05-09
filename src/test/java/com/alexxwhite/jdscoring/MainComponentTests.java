@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
+
 @SpringBootTest
 @ActiveProfiles("test")
 class MainComponentTests {
@@ -139,6 +141,11 @@ class MainComponentTests {
         Assert.isTrue(joblVO.getScore() > 0, "score is 0");
         System.out.println(joblVO.getScore());
 
+    }
+
+    @Test
+    void fileFinderTest() throws IOException {
+        mainComponent.findMaxFile();
     }
 
 }

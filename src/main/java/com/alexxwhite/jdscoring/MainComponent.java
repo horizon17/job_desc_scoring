@@ -14,8 +14,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * location
@@ -45,6 +47,8 @@ public class MainComponent {
     @Autowired
     LocationAnalyzer locationAnalyzer;
 
+    final String tempPath = "c:\\temp\\";
+
     final static String resume = " Platforms/Frameworks: Java, JEE, J2EE, Spring Boot, Spring Framework, Quarkus\n" +
             "        Spring Security, OAuth, OpenID, Keycloak\n" +
             "        Hibernate, JPA, JDBC for Oracle, MS SQL, MySQL, PostgreSQL, MongoDB\n" +
@@ -63,8 +67,13 @@ public class MainComponent {
         // todo - to start param
         boolean coolPrint = true;
 
-        String fileName = "c:\\temp\\messages-7.csv";
+        Integer fileCount = findMaxFile();
+        String fileName = tempPath + "messages-" + fileCount + ".csv";
         List<EmailDTO> emailDTOS = jdReader.readCSV(fileName);
+        if (emailDTOS.size() == 0) {
+            System.out.println("no emails");
+            return;
+        }
         List<JoblVO> joblVOS = new ArrayList<>();
 
         for (EmailDTO emailDTO : emailDTOS) {
@@ -261,6 +270,19 @@ public class MainComponent {
 //            return "17";
 //        }
         return "22";
+    }
+
+    public Integer findMaxFile() throws IOException {
+        Path path = Paths.get(tempPath);
+        Optional<Integer> res;
+        try (Stream<Path> walk = Files.walk(path)) {
+            //List<String> walkList = walk.map(s->s.getFileName().toString()).collect(Collectors.toList());
+            res = walk.filter(r->r.getFileName().toString().contains("messages-"))
+                    .map(r->r.getFileName().toString().replaceAll("messages-|.csv", ""))
+                    .map(e->Integer.parseInt(e))
+                    .max(Comparator.comparingInt(i->i));
+        }
+        return res.get();
     }
 
 }
