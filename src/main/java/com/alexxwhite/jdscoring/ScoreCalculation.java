@@ -52,6 +52,9 @@ public class ScoreCalculation {
         scoreMap.put("Full stack", -50);
         scoreMap.put("Full stack developer", -50);
         scoreMap.put("Lead Full", -50);
+        scoreMap.put("C#", -50);
+        scoreMap.put(".Net", -50);
+        scoreMap.put("C# .Net Developer", -50);
         scoreMap = fillScoreMap(scoreMap, irrelevantList, defaultNegativeScore);
 
 

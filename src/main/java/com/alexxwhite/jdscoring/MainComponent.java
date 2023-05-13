@@ -80,6 +80,8 @@ public class MainComponent {
             String sbj = emailDTO.getSubject();
             if (sbj.contains("Rate Confirmation")
                     || sbj.contains("RTR")
+                    || sbj.contains("Re: Salary Confirmation")
+                    || sbj.contains("HOTLIST")
                     || (sbj.contains("RE:") && !sbj.contains("Hire"))) {
                 System.out.println("skipped with subject " + emailDTO.getSubject());
                 continue;
