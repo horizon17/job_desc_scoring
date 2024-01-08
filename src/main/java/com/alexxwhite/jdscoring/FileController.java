@@ -35,7 +35,7 @@ public class FileController {
 
         try {
             //String filePath = "c:\\temp\\ab81_and_dev\\Hybrid onsite role -- Role_ Sr. Java Developer -- Location_ Coral Springs, FL _ Berkeley Heights, NJ -- Duration_ Contract __ Fulltime-20240105-9773.eml";
-            String command = "cmd /c start \"\" \"" + fileName + ".eml\"";
+            String command = "cmd /c start \"\" \"" + fileName;
 
             Runtime.getRuntime().exec(command);
         } catch (IOException e) {

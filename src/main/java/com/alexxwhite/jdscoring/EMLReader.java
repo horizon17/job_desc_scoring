@@ -8,6 +8,8 @@ import javax.mail.internet.MimeMultipart;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 @Component
@@ -21,7 +23,7 @@ public class EMLReader {
         InputStream is = new FileInputStream(filePath);
         MimeMessage message = new MimeMessage(session, is);
 
-        emailDTO.setFileName(filePath.replace(".eml", ""));
+        emailDTO.setFileName(filePath);
         emailDTO.setSubject(message.getSubject());
         if (message.getFrom() == null || message.getFrom().length == 0) {
             System.out.println("error with message.getFrom() " + message);

@@ -64,12 +64,14 @@ public class MainComponent {
         //Integer fileCount = findMaxFile();
         //List<Path> pathList = getAllFiles("messages");
 
+        // move files with new names, delete old
         List<Path> sourceFileList = getAllFiles(tempPath);
+        String newFileName = UUID.randomUUID() + ".eml";
         for (Path path : sourceFileList) {
-            fileUtility.copyAndDelete(path, destinationDir, UUID.randomUUID() + ".eml");
-
+            fileUtility.copyAndDelete(path, destinationDir, newFileName);
         }
 
+        // read all files
         List<Path> pathList = getAllFiles(allEmlPath);
 
         List<EmailDTO> emailDTOS = new ArrayList<>();
@@ -93,14 +95,27 @@ public class MainComponent {
         List<JoblVO> joblVOS = new ArrayList<>();
 
         for (EmailDTO emailDTO : emailDTOS) {
-            String sbj = emailDTO.getSubject();
-            if (sbj.contains("Rate Confirmation") // todo list of exclusion
-                    || sbj.contains("RTR")
-                    || sbj.contains("Re: Salary Confirmation")
-                    || sbj.contains("HOTLIST")
-                    || sbj.contains("Rentals")
+            String sbj = emailDTO.getSubject().toLowerCase();
+            String from = emailDTO.getFrom().toLowerCase();
+            if (sbj.contains("rate confirmation") // todo list of exclusion
+                    || sbj.contains("rtr")
+                    || sbj.contains("re: salary confirmation")
+                    || sbj.contains("hotlist")
+                    || sbj.contains("rentals")
                     || sbj.contains("monthly statement")
-                    || sbj.contains("Security alert")
+                    || sbj.contains("security alert")
+                    || sbj.contains("invitations and notifications")
+                    || sbj.contains("thanks for applying to")
+                    || sbj.contains("just messaged you")
+                    || sbj.contains("right to represent")
+                    || sbj.contains("want to connect")
+                    || sbj.contains("who opens your emails")
+                    || sbj.contains("otter.ai")
+                    || sbj.contains("intro apr")
+                    || sbj.contains("nerdwallet")
+                    || sbj.contains("zillow")
+                    || from.contains("nerdwallet")
+                    || from.contains("otter")
                     || (sbj.contains("RE:") && !sbj.contains("Hire"))) {
                 System.out.println("skipped with subject " + emailDTO.getSubject());
                 continue;
@@ -244,7 +259,14 @@ public class MainComponent {
         ObjectMapper om = new ObjectMapper();
         JoblVO joblVO = om.convertValue(emailDTO, JoblVO.class);
         joblVO.setSubject(textProcessor.encodeForHtml(emailDTO.getSubject()));
-        joblVO.setGuid(UUID.randomUUID().toString());
+
+        // guid from file name
+        List<String> fileList = Arrays.asList(emailDTO.getFileName().split("\\\\"));
+        if (fileList.size() == 0) {
+            return null;
+        }
+        String fileGUID = fileList.get(fileList.size() - 1).replace(".eml", "");
+        joblVO.setGuid(fileGUID);
 
         sharedMap.put(joblVO.getGuid(), joblVO.getFileName());
 

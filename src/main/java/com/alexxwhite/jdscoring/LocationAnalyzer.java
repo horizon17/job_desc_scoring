@@ -152,8 +152,15 @@ public class LocationAnalyzer {
                 .filter(r -> locKeyList.stream().anyMatch(r::contains))
                 .collect(Collectors.toList());
 
-        return filtered.stream().distinct().collect(Collectors.joining());
+        String finalLoc = filtered.stream().distinct().collect(Collectors.joining());
 
+        if (finalLoc.contains("email")
+                || finalLoc.contains("http")
+                || finalLoc.contains("setting")
+                || finalLoc.contains(".com")) {
+            return "NA";
+        }
+        return finalLoc;
     }
 
     public String shortLocation(final String location) {
