@@ -15,4 +15,6 @@ public class EmailDTO {
 
     private String wholeBody; // all included
 
+    private String fileName;
+
 }

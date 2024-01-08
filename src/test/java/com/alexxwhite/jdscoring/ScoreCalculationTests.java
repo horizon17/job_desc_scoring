@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.Assert;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @SpringBootTest
@@ -17,6 +19,9 @@ class ScoreCalculationTests {
 
 	@Autowired
 	private TextProcessor textProcessor;
+
+	@Autowired
+	KeyWordsSrc keyWordsSrc;
 
 	String jd = "Subject:\n" +
 			"IntelliSearch™ Alert found 26 new jobs, based on your profile\n" +
@@ -121,10 +126,35 @@ class ScoreCalculationTests {
 	void prepareJDTest() {
 
 		List<String> jobDescList = textProcessor.prepareJD(textProcessor.splitText(jd1));
-		List<String> relevantList = textProcessor.splitText(resume);
+		//List<String> relevantList = textProcessor.splitText(resume);
 
-		Integer score = scoreCalculation.doCalculation(jobDescList, relevantList);
+		Integer score = scoreCalculation.doCalculation(jobDescList);
 		System.out.println(score);
+
+	}
+
+	@Test
+	void fillScoreTest() {
+
+		List<String> irrelevantList = Arrays.asList(keyWordsSrc.getIrrelevantResumeKeys().split(" "));
+
+		HashMap<String, Integer> scoreMap = new HashMap<>();
+
+		scoreMap.put("Angular", -50);
+		scoreMap.put("Nodejs", -50);
+		scoreMap.put("Node.js", -50);
+		scoreMap.put("React", -50);
+		scoreMap.put("Lead developer", -20);
+		scoreMap.put("Azure", -10);
+		scoreMap.put("Full stack", -50);
+		scoreMap.put("Full stack developer", -50);
+		scoreMap.put("Lead Full", -50);
+		scoreMap.put("C#", -50);
+		scoreMap.put(".Net", -50);
+		scoreMap.put("C# .Net Developer", -50);
+		scoreMap = scoreCalculation.fillScoreMap(scoreMap, irrelevantList, ScoreCalculation.defaultNegativeScore);
+
+		System.out.println(scoreMap);
 
 	}
 

@@ -1,5 +1,6 @@
 package com.alexxwhite.jdscoring;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -137,7 +138,7 @@ class MainComponentTests {
         EmailDTO emailDTO = new EmailDTO();
         emailDTO.setWholeBody(wholeBody);
         emailDTO.setDate("4/20/2023");
-        JoblVO joblVO = mainComponent.handlerDto(emailDTO, resume);
+        JoblVO joblVO = mainComponent.handlerDto(emailDTO);
         Assert.isTrue(joblVO.getScore() > 0, "score is 0");
         System.out.println(joblVO.getScore());
 
@@ -146,6 +147,23 @@ class MainComponentTests {
     @Test
     void fileFinderTest() throws IOException {
         mainComponent.findMaxFile();
+    }
+
+    @Test
+    void htmlTest() {
+        String ss = "10 Rentals We Think You'll Love";
+
+        System.out.println(encodeForHtml(ss));
+    }
+
+    public static String encodeForHtml(String input) {
+        return input.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;")
+                .replace("\\", "&#92;")
+                .replace("/", "&#47;");
     }
 
 }

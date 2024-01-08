@@ -1,5 +1,6 @@
 package com.alexxwhite.jdscoring;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -18,37 +19,46 @@ import java.util.stream.Collectors;
 @Component
 public class ScoreCalculation {
 
-    final static String irrelevantResumeKeys = "Python Azure C# C++ ";
-
     final static int defaultPositiveScore = 10;
-    final static int defaultNegativeScore = 10;
+    final static int defaultNegativeScore = -10;
 
+    @Autowired
+    KeyWordsSrc keyWordsSrc;
 
-    public Integer doCalculation(final List<String> jobDescList,
-                              final List<String> relevantList) {
+    /**
+     *
+     * @param jobDescList current job vacation
+     * @return
+     */
+    public Integer doCalculation(final List<String> jobDescList) {
+
+        //List<String> relevantList = textProcessor.splitText(resume);
+        List<String> relevantList = Arrays.asList(keyWordsSrc.getResume().split(" "));
+
+        // negative
+        List<String> irrelevantList = Arrays.asList(keyWordsSrc.getIrrelevantResumeKeys().split(" "));
 
         HashMap<String, Integer> scoreMap = new HashMap<>();
 
-        // special ++ scores
+        // special ++ scores for some keys from relevantList
         scoreMap.put("Java", 25);
         scoreMap.put("Spring Boot", 25);
         scoreMap.put("Kafka", 20);
+        scoreMap.put("aws certification", 20);
+        scoreMap.put("aws certificate", 20);
+        scoreMap.put("AWS Developer Certification", 20);
+        scoreMap.put("AWS", 20);
+        scoreMap.put("aws", 20);
+        scoreMap.put("microservices", 20);
         scoreMap = fillScoreMap(scoreMap, relevantList, defaultPositiveScore);
-
-
-        // negative
-        List<String> irrelevantList = Arrays.asList(irrelevantResumeKeys.split(" "));
 
         // special -- scores
         scoreMap.put("Angular", -50);
         scoreMap.put("Nodejs", -50);
         scoreMap.put("Node.js", -50);
         scoreMap.put("React", -50);
-        scoreMap.put("aws certification", -50);
-        scoreMap.put("aws certificate", -50);
-        scoreMap.put("AWS Developer Certification", -20);
         scoreMap.put("Lead developer", -20);
-        scoreMap.put("Azure", -50);
+        scoreMap.put("Azure", -10);
         scoreMap.put("Full stack", -50);
         scoreMap.put("Full stack developer", -50);
         scoreMap.put("Lead Full", -50);
@@ -57,12 +67,11 @@ public class ScoreCalculation {
         scoreMap.put("C# .Net Developer", -50);
         scoreMap = fillScoreMap(scoreMap, irrelevantList, defaultNegativeScore);
 
-
         return getScore(jobDescList, scoreMap);
 
     }
 
-    private HashMap<String, Integer> fillScoreMap(HashMap<String, Integer> scoreMap,
+    public HashMap<String, Integer> fillScoreMap(HashMap<String, Integer> scoreMap,
                                                     final List<String> keyList,
                                                     final int defaultScore) {
         for (String nextKey : keyList) {
@@ -75,14 +84,14 @@ public class ScoreCalculation {
     }
 
     public Integer getScore(final List<String> jDkeyWords,
-                            final HashMap<String, Integer> positiveScore) {
+                            final HashMap<String, Integer> scoreMap) {
 
-        int sum = positiveScore.entrySet().stream()
+        int sum = scoreMap.entrySet().stream()
                 .filter(entry -> ifContainAny(jDkeyWords, entry.getKey()))
                 .mapToInt(Map.Entry::getValue)
                 //.peek(System.out::println)
                 .sum();
-
+        System.out.println(sum);
         return sum;
     }
 

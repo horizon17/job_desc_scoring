@@ -26,6 +26,7 @@ public class TextProcessor {
         jdSource = jdSource.stream()
                 .map(r->r.replace("(", ""))
                 .map(r->r.replace(")", ""))
+                .map(r->encodeForHtml(r))
                 .collect(Collectors.toList());
 
         jdSource.removeIf(e->e.isEmpty() || e == null || e.length() == 1);
@@ -39,6 +40,16 @@ public class TextProcessor {
 
     public List<String> splitTextByLines(final String bitText) {
         return Arrays.asList(bitText.split("\\s*[\r?\n]\\s*"));
+    }
+
+    public String encodeForHtml(String input) {
+        return input.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;")
+                .replace("\\", "&#92;")
+                .replace("/", "&#47;");
     }
 
 }

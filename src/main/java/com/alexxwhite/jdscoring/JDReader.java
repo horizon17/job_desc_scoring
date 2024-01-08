@@ -13,8 +13,8 @@ import java.util.List;
 @Component
 public class JDReader {
 
-    public List<EmailDTO> readCSV(String fileName) throws CsvValidationException {
-        List<EmailDTO> dtos = new ArrayList<>();
+    public List<EmailDTO> readCSV(final String fileName,
+                                  final List<EmailDTO> dtos) throws CsvValidationException {
         try {
             CSVReader reader = new CSVReader(new FileReader(fileName));
             String[] line;

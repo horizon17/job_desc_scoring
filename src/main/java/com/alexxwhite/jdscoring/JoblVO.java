@@ -28,4 +28,6 @@ public class JoblVO {
 
     private String guid;
 
+    private String fileName;
+
 }

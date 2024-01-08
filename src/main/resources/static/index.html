@@ -9,6 +9,34 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 
+<style>
+    .circleR {
+        width: 10px;  /* Size of the circle */
+        height: 10px; /* Size of the circle */
+        background-color: #00FFFF; /* Background color of the circle */
+        border-radius: 50%; /* Makes the shape a circle */
+    }
+    .circleS {
+        width: 10px;  /* Size of the circle */
+        height: 10px; /* Size of the circle */
+        background-color: #0066ff; /* Background color of the circle */
+        border-radius: 50%; /* Makes the shape a circle */
+    }
+    .circleH {
+        width: 10px;  /* Size of the circle */
+        height: 10px; /* Size of the circle */
+        background-color: #ff9933; /* Background color of the circle */
+        border-radius: 50%; /* Makes the shape a circle */
+    }
+    .circleL {
+        width: 10px;  /* Size of the circle */
+        height: 10px; /* Size of the circle */
+        background-color: #070A73; /* Background color of the circle */
+        border-radius: 50%; /* Makes the shape a circle */
+    }
+
+</style>
+
 <body>
 
 <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -49,7 +77,7 @@ Highcharts.chart('container', {
 
     accessibility: {
         point: {
-            valueDescriptionFormat: '{index}. {point.uuid}, score: {point.x}g, salary: {point.y}g, type: {point.z}%.'
+            valueDescriptionFormat: '{index}. {point.uuid}, subj: {point.subj}, score: {point.x}g, salary: {point.y}g, type: {point.z}%.'
         }
     },
 
@@ -100,9 +128,12 @@ Highcharts.chart('container', {
         useHTML: true,
         headerFormat: '<table>',
         pointFormat: '<tr><th colspan="2"><h3>{point.uuid}</h3></th></tr>' +
+            '<tr><th>Subject:</th><td>{point.subj}</td></tr>' +
             '<tr><th>Score:</th><td>{point.x} point</td></tr>' +
             '<tr><th>Salary:</th><td>{point.y} $</td></tr>' +
             '<tr><th>Location:</th><td>{point.loc} </td></tr>' +
+            '<tr><th>from:</th><td>{point.from} </td></tr>' +
+            '<tr><th>to:</th><td>{point.to} </td></tr>' +
             '<tr><th>Type:</th><td>{point.type} </td></tr>',
         footerFormat: '</table>',
         followPointer: false
@@ -126,6 +157,30 @@ replace_me
             events: {
                 click: function() {
                     // Create a hidden input field
+                    console.log(this.uuid);
+
+                    // Define the base URL of the local endpoint
+                    const baseUrl = 'http://localhost:8081/api/v1/' + this.uuid;
+
+                    // const id = '123'; // Replace with the actual ID you want to send
+                    // const urlWithParam = `${baseUrl}?id=${encodeURIComponent(id)}`;
+
+                    // Use fetch to send a GET request
+                    fetch(baseUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json(); // or response.text() if the response is not in JSON format
+                        })
+                        .then(data => {
+                            console.log(data); // Process and display the data
+                        })
+                        .catch(error => {
+                            console.error('There has been a problem with your fetch operation:', error);
+                        });
+
+
                     var input = document.createElement('input');
                     input.style.opacity = 0;
                     input.value = this.uuid;
@@ -150,6 +205,7 @@ replace_me
     }]
 
 });
+
 </script>
 
     </body>

@@ -2,7 +2,7 @@ package com.alexxwhite.jdscoring;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.exceptions.CsvValidationException;
-import org.hibernate.id.GUIDGenerator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 public class MainComponent {
 
     @Autowired
-    private JDReader jdReader;
+    private EMLReader emlReader;
 
     @Autowired
     private TextProcessor textProcessor;
@@ -47,75 +47,91 @@ public class MainComponent {
     @Autowired
     LocationAnalyzer locationAnalyzer;
 
-    final String tempPath = "c:\\temp\\";
+    @Autowired
+    FileUtility fileUtility;
 
-    final static String resume = " Platforms/Frameworks: Java, JEE, J2EE, Spring Boot, Spring Framework, Quarkus\n" +
-            "        Spring Security, OAuth, OpenID, Keycloak\n" +
-            "        Hibernate, JPA, JDBC for Oracle, MS SQL, MySQL, PostgreSQL, MongoDB\n" +
-            "        REST api, SOAP\n" +
-            "        CI/CD: Docker, OpenShift, Kubernetes\n" +
-            "        Cloud: Google Cloud, Cloud API, Cloud PubSub, GKE, Cloud Storage BigQuery, Cloud Spanner, BigTable, Cloud Logging, Stackdriver, App Engine)\n" +
-            "        Git, Gradle, Maven (including plugin development)\n" +
-            "        Kafka, Apache Ignite, React, Node JS\n" +
-            "        Deep understanding and use of Object-Oriented, Functional and Aspect-Oriented programming paradigms\n" +
-            "        JUnit, Mockito, TDD\n" +
-            " Micro services, Containers, K8, Streaming, " +
-            "        Linux/Unix";
+    public final Map<String, String> sharedMap = Collections.synchronizedMap(new HashMap<>());
 
-    public void run() throws CsvValidationException, IOException, URISyntaxException {
+    final String tempPath = "c:\\temp\\ab81_and_dev\\";
+    final String allEmlPath = "c:\\temp\\all_eml_files\\";
+    final Path destinationDir = Paths.get(allEmlPath);
+
+    public void run() throws CsvValidationException, Exception, URISyntaxException {
 
         // todo - to start param
-        boolean coolPrint = true;
+        boolean coolPrint = false;
 
-        Integer fileCount = findMaxFile();
-        String fileName = tempPath + "messages-" + fileCount + ".csv";
-        List<EmailDTO> emailDTOS = jdReader.readCSV(fileName);
-        if (emailDTOS.size() == 0) {
-            System.out.println("no emails");
-            return;
+        //Integer fileCount = findMaxFile();
+        //List<Path> pathList = getAllFiles("messages");
+
+        List<Path> sourceFileList = getAllFiles(tempPath);
+        for (Path path : sourceFileList) {
+            fileUtility.copyAndDelete(path, destinationDir, UUID.randomUUID() + ".eml");
+
         }
+
+        List<Path> pathList = getAllFiles(allEmlPath);
+
+        List<EmailDTO> emailDTOS = new ArrayList<>();
+        for (Path path : pathList) {
+            if (!path.getFileName().toString().contains(".eml")) {
+                continue;
+            }
+            //String fileName = tempPath + path.getFileName();
+            //jdReader.readCSV(fileName, emailDTOS);
+            EmailDTO emailDTO = emlReader.readFileByName(path.toString());
+            if (emailDTO == null) {
+                continue;
+            }
+            emailDTOS.add(emailDTO);
+            if (emailDTOS.size() == 0) {
+                System.out.println("no emails");
+                return;
+            }
+        }
+
         List<JoblVO> joblVOS = new ArrayList<>();
 
         for (EmailDTO emailDTO : emailDTOS) {
             String sbj = emailDTO.getSubject();
-            if (sbj.contains("Rate Confirmation")
+            if (sbj.contains("Rate Confirmation") // todo list of exclusion
                     || sbj.contains("RTR")
                     || sbj.contains("Re: Salary Confirmation")
                     || sbj.contains("HOTLIST")
+                    || sbj.contains("Rentals")
+                    || sbj.contains("monthly statement")
+                    || sbj.contains("Security alert")
                     || (sbj.contains("RE:") && !sbj.contains("Hire"))) {
                 System.out.println("skipped with subject " + emailDTO.getSubject());
                 continue;
             }
-            JoblVO joblVO = handlerDto(emailDTO, resume.toLowerCase());
+            JoblVO joblVO = handlerDto(emailDTO);
             joblVOS.add(joblVO);
         }
         joblVOS = joblVOS.stream()
-                .sorted(Comparator.comparing(JoblVO::getScore))
+                .sorted(Comparator.comparing(JoblVO::getScore).reversed())
                 .collect(Collectors.toList());
 
         //  { x: 63.4, y: 51.8, z: 15.4, name: 'PT', country: 'Portugal' },
         //  { x: 64, y: 82.9, z: 31.3, name: 'NZ', country: 'New Zealand' }
         int i = 0;
         int kRandInit = -500000;
-        int kMaxLevel = 60000;
+        int kMaxLevel = 10000;
         int kStep = 40000;
         int kShift = kRandInit;
 
-        StringBuilder subjectGuid = new StringBuilder();
+        StringBuilder bottomComment = new StringBuilder();
         StringBuilder sb = new StringBuilder();
-        sb.append("{ x: 0, y: 300000, z: 22, color: "
-                +  getColor("Remote") + ", loc: 'Remote', type: 'Remote', uuid: '1' },");
-        sb.append("{ x: 0, y: 100000, z: 22, color: "
-                +  getColor("OnSite") + ", loc: 'OnSite', type: 'OnSite', uuid: '2' },");
-        sb.append("{ x: 0, y: -100000, z: 22, color: "
-                +  getColor("Hybrid") + ", loc: 'Hybrid', type: 'Hybrid', uuid: '3' },");
+        addPoint(sb, 0, 350000, 30, "test", "test", "11");
+        addPoint(sb, 0, 300000, getSize("Remote"), "Remote", "Remote", "1");
+        addPoint(sb, 0, 100000, getSize("OnSite"), "OnSite","OnSite", "2");
+        addPoint(sb, 0, -100000, getSize("Hybrid"), "Hybrid","Hybrid", "3");
+        addPoint(sb, 0, -300000, getSize("Any"), "Any",  "Remote or OnSite or Hybrid", "4");
+
         if (coolPrint) {
-            sb.append("{ x: 275, y: 145000, z: 22, color: "
-                    + getColor("Hybrid") + ", loc: 'CA', type: 'Hybrid', uuid: 'f2dd1eb8-e979-4ec8-8be9-431ab6380bea' },");
+            addPoint(sb, 275, 175000, getSize(null), "CA", "Hybrid", "f2dd1eb8-e979-4ec8-8be9-431ab6380bea");
         }
-        sb.append("{ x: 0, y: -300000, z: 22, color: "
-                +  getColor("Mixed")
-                + ", loc: 'Remote or OnSite or Hybrid', type: 'Remote or OnSite or Hybrid', uuid: '4' },");
+
         for (JoblVO joblVO : joblVOS) {
             if (joblVO.getScore() < 50 || (joblVO.getScore() < 90 && joblVO.getLoc().isEmpty())) {
                 continue;
@@ -137,27 +153,41 @@ public class MainComponent {
                     joblVO.setLoc(randomLoc[rand]);
                 }
             }
+
+            // point + tooltip output
             sb.append("{ x: " + joblVO.getScore() + ", "
                     + "y: " + salary + ", "
                     + "z: " + getSize(joblVO.getType()) + ", "
                     + "color: "+ getColor(joblVO.getType()) +","
                     + " loc: '" + joblVO.getLoc() + "', "
                     + " type: '" + joblVO.getType() + "', "
+                    + " subj: '" + joblVO.getSubject() + "', "
+                    + " from: '" + textProcessor.encodeForHtml(joblVO.getFrom()) + "', "
+                    + " to: '" + joblVO.getTo() + "', "
                     + " uuid: '" + joblVO.getGuid() + "'}" + "\n");
             if (i != joblVOS.size() - 1) {
                 sb.append(",");
             }
 
-            subjectGuid.append(" \n\n<br>");
-            subjectGuid.append(joblVO.getGuid());
-            subjectGuid.append(": ");
-            subjectGuid.append(joblVO.getSubject());
-            subjectGuid.append(", from: ");
-            subjectGuid.append(joblVO.getFrom());
-            subjectGuid.append(", date: ");
-            subjectGuid.append(joblVO.getDate());
-            subjectGuid.append(" \n\n<br>");
-            subjectGuid.append("----------");
+            bottomComment.append(" \n\n<br>");
+            bottomComment.append(getColorHtml(joblVO.getType()));
+            bottomComment.append(joblVO.getGuid());
+            bottomComment.append(", score: ");
+            bottomComment.append(joblVO.getScore());
+            bottomComment.append(", salary: ");
+            bottomComment.append(joblVO.getSalary());
+            bottomComment.append(", // type: ");
+            bottomComment.append(joblVO.getType());
+            bottomComment.append(", // subj: ");
+            bottomComment.append(joblVO.getSubject());
+            bottomComment.append(", from: ");
+            bottomComment.append(joblVO.getFrom());
+            bottomComment.append(", to: ");
+            bottomComment.append(joblVO.getTo());
+            bottomComment.append(", date: ");
+            bottomComment.append(joblVO.getDate());
+            bottomComment.append(" \n\n<br>");
+            bottomComment.append("----------");
         }
 
         //
@@ -176,7 +206,7 @@ public class MainComponent {
                     }
                     writer.write(line + System.lineSeparator());
                 }
-                writer.write(subjectGuid.toString());
+                writer.write(bottomComment.toString());
             } catch (IOException e) {
                 System.err.format("IOException: %s%n", e);
             }
@@ -192,19 +222,33 @@ public class MainComponent {
 
     }
 
+    public void addPoint(StringBuilder sb,
+                         int x, int y, int z,
+                         String location,
+                         String type,
+                         String uuid) {
 
-    public JoblVO handlerDto(final EmailDTO emailDTO,
-                             final String resume) {
+        sb.append("{ x: " + x
+                + ", y: " + y
+                + ", z: " + z
+                + ", color: " +  getColor(type)
+                + ", loc: '" + location
+                + "', type: '" + type
+                + "', uuid: '" + uuid + "' },");
+    }
+
+    public JoblVO handlerDto(final EmailDTO emailDTO) {
 
         List<String> jobDescList = textProcessor.prepareJD(textProcessor.splitText(emailDTO.getWholeBody().toLowerCase()));
 
-        List<String> relevantList = textProcessor.splitText(resume);
-
         ObjectMapper om = new ObjectMapper();
         JoblVO joblVO = om.convertValue(emailDTO, JoblVO.class);
+        joblVO.setSubject(textProcessor.encodeForHtml(emailDTO.getSubject()));
         joblVO.setGuid(UUID.randomUUID().toString());
 
-        Integer score = scoreCalculation.doCalculation(jobDescList, relevantList);
+        sharedMap.put(joblVO.getGuid(), joblVO.getFileName());
+
+        Integer score = scoreCalculation.doCalculation(jobDescList);
         joblVO.setScore(score);
 
         Integer salary = salaryAnalyzer.searchSalary(emailDTO.getWholeBody());
@@ -230,6 +274,9 @@ public class MainComponent {
 
     private String workType(final String body) {
         StringBuilder sb = new StringBuilder();
+        if (body.contains("jobs")) {
+            return sb.append("Jobs list").toString();
+        }
         if (body.contains("remote")) {
             sb.append("Remote");
         }
@@ -249,6 +296,9 @@ public class MainComponent {
     }
 
     private String getColor(final String type) {
+        if (type.equals("Jobs list")) {
+            return "'#070A73'";
+        }
         if (type.equals("Remote")) {
             return "'#00FFFF'";
         }
@@ -261,17 +311,42 @@ public class MainComponent {
         return "'#b3ffb3'";
     }
 
-    private String getSize(final String type) {
-//        if (type.equals("Remote")) {
-//            return "17";
-//        }
-//        if (type.equals("OnSite")) {
-//            return "17";
-//        }
-//        if (type.equals("Hybrid")) {
-//            return "17";
-//        }
-        return "22";
+    private String getColorHtml(String type) {
+        if (type.equals("Jobs list")) {
+            return "<div class=\"circleL\"></div>";
+        }
+        if (type.equals("Remote")) {
+            return "<div class=\"circleR\"></div>";
+        }
+        if (type.equals("OnSite")) {
+            return "<div class=\"circleS\"></div>";
+        }
+        if (type.equals("Hybrid")) {
+            return "<div class=\"circleH\"></div>";
+        }
+        return "'#b3ffb3'";
+    }
+
+
+    private int getSize(final String type) {
+        int defaultSize = 13;
+        if (type == null) {
+            return defaultSize;
+        }
+        if (type.equals("Jobs list")) {
+            return 10;
+        }
+        if (type.equals("Remote")) {
+            return 16;
+        }
+        if (type.equals("Hybrid")) {
+            return 15;
+        }
+        if (type.equals("OnSite")) {
+            return 14;
+        }
+
+        return defaultSize;
     }
 
     public Integer findMaxFile() throws IOException {
@@ -285,6 +360,39 @@ public class MainComponent {
                     .max(Comparator.comparingInt(i->i));
         }
         return res.get();
+    }
+
+    public List<Path> getAllFiles(String currentPath, String fileName) throws IOException {
+        Path path = Paths.get(currentPath);
+        List<Path> pathList;
+        try (Stream<Path> walk = Files.walk(path)) {
+            pathList= walk.filter(r->r.getFileName().toString().contains(fileName))
+                    .collect(Collectors.toList());
+        }
+        return pathList;
+    }
+
+    public List<Path> getAllFiles(String currentPath) throws IOException {
+        Path path = Paths.get(currentPath);
+        List<Path> pathList = new ArrayList<>();
+        if (!isDirectoryNotEmpty(path)) {
+            return pathList;
+        }
+        try (Stream<Path> walk = Files.walk(path)) {
+            pathList= walk.collect(Collectors.toList());
+        }
+        return pathList;
+    }
+
+    private static boolean isDirectoryNotEmpty(Path path) {
+        if (Files.isDirectory(path)) {
+            try (var dirStream = Files.newDirectoryStream(path)) {
+                return dirStream.iterator().hasNext();
+            } catch (IOException e) {
+                System.err.println("Error occurred: " + e.getMessage());
+            }
+        }
+        return false;
     }
 
 }
